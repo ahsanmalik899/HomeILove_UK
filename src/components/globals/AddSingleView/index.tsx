@@ -1,4 +1,6 @@
 import {
+  useCalculateLoanApiMutation,
+  useGetLoanInterestRateQuery,
   useGetSinglePostQuery,
   useLazyGetRandomAdQuery,
   useSaveItemApiMutation,
@@ -23,7 +25,6 @@ import { Ionicons } from "@expo/vector-icons";
 import CircleImage from "@src/components/globals/CircleImage/CircleImage";
 import DatePickerField from "@src/components/globals/DatePickerField";
 import { FormikInput } from "@src/components/globals/FormictInput";
-import { FormikDropdownwithjson } from "@src/components/globals/FormikDropdownwithjson";
 import HeaderWithBack from "@src/components/globals/HeaderWithBack";
 import ImageSlider from "@src/components/globals/ImageSlider";
 import LargeButton from "@src/components/globals/LaregeButton";
@@ -60,6 +61,7 @@ import { FlashList } from "@shopify/flash-list";
 import MapView, { Marker } from "react-native-maps";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Yup from "yup";
+import { FormikDropdownwithjson } from "../FormikDropdownwithjson";
 import ProfileSingleView from "../ProfileSingleView";
 import SavedItems from "../SavedItems";
 
@@ -79,6 +81,7 @@ export default function AddSingleView({id,type,setshowModel,  onSavedChange,}: {
     });
   };
  const user = useAppSelector(userdata);
+
   const [imageNo, setImageNo] = useState(0);
   const [ getRandomAd, { data: randomAdData, isFetching: randomAdFetching }] = useLazyGetRandomAdQuery();
   const [sendVisistRequies, { isLoading }] = useSendVisistRequestMutation();
@@ -98,6 +101,8 @@ export default function AddSingleView({id,type,setshowModel,  onSavedChange,}: {
   const [showShare, setShowShare] = useState(false);
   const showMap = !isNaN(latitude) && !isNaN(longitude);
   const facts = data?.post?.imp_facts ?? data?.post?.facts ?? "";
+     const [calculateLoanApi, { isLoading: calculatingLoan }] =
+  useCalculateLoanApiMutation();
      const [saveItemApi] = useSaveItemApiMutation();
             const [unsaveItemApi] = useUnsaveItemApiMutation();
     const [shareDetailPostApi, { isLoading: sharing }] = useShareDetailPostApiMutation();
@@ -137,26 +142,72 @@ export default function AddSingleView({id,type,setshowModel,  onSavedChange,}: {
 
     link: Yup.string().url("Invalid link").nullable(),
   });
-  const calculateMonthlyPayment = (
-    totalValue: number,
-    downPaymentPercent: number,
-    interestRate: number,
-    years: number
-  ) => {
-    const downPayment = (downPaymentPercent / 100) * totalValue;
-    const principal = totalValue - downPayment;
+const handleLoanCalculation = async (
+  yearValue?: number,
+  downPaymentValue?: string
+) => {
+  try {
+    const propertyValue = Number(
+      String(data?.post?.asking_price ?? 0).replace(/,/g, "")
+    );
 
-    const monthlyRate = interestRate / 12 / 100;
-    const months = years * 12;
+    const finalYear = Number(yearValue ?? selectedYear);
 
-    if (monthlyRate === 0) return Number((principal / months).toFixed(2));
+    const finalDownPayment = Number(
+      String(downPaymentValue ?? downPayment)
+        .replace(/,/g, "")
+        .trim()
+    );
 
-    const monthlyPayment =
-      (principal * (monthlyRate * Math.pow(1 + monthlyRate, months))) 
-      (Math.pow(1 + monthlyRate, months) - 1);
+    if (!propertyValue || propertyValue <= 0) {
+      renderToastError("Invalid property value");
+      return;
+    }
 
-    return Number(monthlyPayment.toFixed(2));
-  };
+    if (!finalDownPayment || finalDownPayment < 0) {
+      renderToastError("Please enter a valid down payment");
+      return;
+    }
+
+    if (finalDownPayment >= propertyValue) {
+      renderToastError(
+        "Down payment must be less than property value"
+      );
+      return;
+    }
+
+    if (!finalYear || finalYear < 1) {
+      renderToastError("Please select repayment period");
+      return;
+    }
+
+    const response = await calculateLoanApi({
+      property_value: propertyValue,
+      down_payment: finalDownPayment,
+      year: finalYear,
+    }).unwrap();
+
+    console.log("LOAN RESPONSE:", response);
+
+    if (response?.success) {
+      setMonthlyPayment(
+        Number(response?.data?.monthly_payment ?? 0)
+      );
+    } else {
+      renderToastError(
+        response?.message || "Unable to calculate mortgage"
+      );
+    }
+  } catch (error: any) {
+    console.log("LOAN ERROR:", error);
+
+    renderToastError(
+      error?.data?.message ||
+        error?.message ||
+        "Unable to calculate mortgage"
+    );
+  }
+};
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
 const rotateAnim = useRef(new Animated.Value(0)).current;
 const toggleSave = async () => {
@@ -217,10 +268,19 @@ const rotate = rotateAnim.interpolate({
   inputRange: [-1, 1],
   outputRange: ["-2deg", "2deg"],
 });
-  const [monthlyPayment, setMonthlyPayment] = useState<number | null>(0);
+ const [monthlyPayment, setMonthlyPayment] = useState<number>(0);
+ const [downPayment, setDownPayment] = useState("");
+ const {
+  data: interestRateData,
+  isFetching: interestRateLoading,
+} = useGetLoanInterestRateQuery();
+const [selectedYear, setSelectedYear] = useState<number | string>("");
+const [loanData, setLoanData] = useState<any>(null);
+const interestRate =
+  Number(interestRateData?.data?.interest_rate ?? 0);
   return (
     <>
-      <ScrollView className="flex-1 bg-white">
+      <ScrollView className="flex-1 bg-white"   keyboardShouldPersistTaps="handled">
         <HeaderWithBack  onBackpress={()=>{setshowModel(false)}}  isSavedItem onpressSave={()=>setShowSaved(true)}
         />
         {randomAdData?.data?.ad_link&&(
@@ -263,7 +323,7 @@ const rotate = rotateAnim.interpolate({
              {data?.post?.community_price?.length > 0 && (
                 <Text style={{ color: Colors.light.red,  fontWeight: 700,
                   fontSize:ms(18),fontFamily: "PopinRegula", }}>
-                  From £ {formatPrice(data.post.community_price[0])} To £{" "}
+                  From C$ {formatPrice(data.post.community_price[0])} To C${" "}
                   {
                     formatPrice(
                     data.post.community_price[
@@ -282,7 +342,7 @@ const rotate = rotateAnim.interpolate({
                   fontFamily: "PopinRegula",
                 }}
               >
-                £ {formatPrice(data?.post?.asking_price ?? 0)}
+                C$ {formatPrice(data?.post?.asking_price ?? 0)}
                 {type === "rent" ? `/${data?.post?.rent_type ?? ""}` : ""}
               </Text>)}
 </View>
@@ -997,49 +1057,57 @@ const rotate = rotateAnim.interpolate({
                     />
                   </View>
                   <View className="flex-1" style={{ marginRight: hs(5) }}>
-                    <FormikInput
-                      title="Down Payment"
-                      placeholder=""
-                      additonalText={"20%"}
-                      onChangeText={() => {}}
-                      onBlur={() => {}}
-                      editable={false}
-                      value={
-                        data?.post?.asking_price
-                          ? Math.round(
-                              Number(data.post.asking_price) * 0.2
-                            ).toString()
-                          : "0"
-                      }
-                      touched={false}
-                      errors={false}
-                      required={false}
-                      errorText={""}
-                    />
+                   <FormikInput
+  title="Down Payment"
+  placeholder="Enter down payment"
+  onChangeText={(text) => {
+    const cleanValue = text.replace(/[^0-9.]/g, "");
+
+    setDownPayment(cleanValue);
+
+    if (selectedYear && cleanValue) {
+      handleLoanCalculation(
+        Number(selectedYear),
+        cleanValue
+      );
+    }
+  }}
+  onBlur={() => {}}
+  editable={true}
+  value={downPayment}
+  touched={false}
+  errors={false}
+  required={true}
+  errorText=""
+  keyboardType="numeric"
+/>
                   </View>
                 </View>
                 <View className="flex-row justify-between">
                   <View className="flex-1" style={{ marginRight: hs(5) }}>
-                    <FormikInput
-                      title="Interest Rate"
-                      placeholder=""
-                      onChangeText={() => {}}
-                      onBlur={() => {}}
-                      value={"5.760%"}
-                      touched={false}
-                      errors={false}
-                      required={false}
-                      editable={false}
-                      errorText={""}
-                    />
+                <FormikInput
+  title="Interest Rate"
+  placeholder=""
+  onChangeText={() => {}}
+  onBlur={() => {}}
+  value={
+    interestRateLoading
+      ? "Loading..."
+      : `${interestRate.toFixed(2)}%`
+  }
+  touched={false}
+  errors={false}
+  required={false}
+  editable={false}
+  errorText=""
+/>
                   </View>
                   <View className="flex-1" style={{ marginRight: hs(5) }}>
-                    <FormikDropdownwithjson
-                      title={"Repayment period"}
-                      additonalText="in years"
-                      placeholder={"Select Year"}
-                      value={""}
-                      options={[
+   <FormikDropdownwithjson
+  title="Repayment period"
+  placeholder="Select Year"
+  value={selectedYear}
+    options={[
                         { label: "1 year", value: 1 },
                         { label: "2 years", value: 2 },
                         { label: "3 years", value: 3 },
@@ -1081,22 +1149,23 @@ const rotate = rotateAnim.interpolate({
                         { label: "39 years", value: 39 },
                         { label: "40 years", value: 40 },
                       ]}
-                      onSelect={(val) => {
-                        if (data?.post?.asking_price) {
-                          const monthly = calculateMonthlyPayment(
-                            data?.post?.asking_price,
-                            20,
-                            5.76,
-                            val
-                          );
-                          setMonthlyPayment(monthly);
-                        }
-                      }}
-                      touched={false}
-                      errors={false}
-                      errorText={""}
-                      required={false}
-                    />
+  onSelect={(val) => {
+    const year = Number(val);
+
+    setSelectedYear(year);
+
+    if (!downPayment) {
+      renderToastError("Please enter down payment first");
+      return;
+    }
+
+    handleLoanCalculation(year, downPayment);
+  }}
+  touched={false}
+  errors={false}
+  errorText=""
+  required={false}
+/>
                   </View>
                 </View>
                 <View
@@ -1119,16 +1188,29 @@ const rotate = rotateAnim.interpolate({
                   >
                     Monthly repayments
                   </Text>
-                  <Text
-                    style={{
-                      fontSize: ms(15),
-                      fontWeight: 500,
-                      marginTop: vs(10),
-                      color: "white",
-                    }}
-                  >
-                    £ {monthlyPayment}
-                  </Text>
+{calculatingLoan ? (
+  <Text
+    style={{
+      fontSize: ms(14),
+      fontWeight: "500",
+      color: "white",
+      marginTop: vs(10),
+    }}
+  >
+    Calculating...
+  </Text>
+) : (
+  <Text
+    style={{
+      fontSize: ms(15),
+      fontWeight: "500",
+      color: "white",
+      marginTop: vs(10),
+    }}
+  >
+    C$ {formatPrice(monthlyPayment)}
+  </Text>
+)}
                 </View>
                 <Text className="mt-4">
                   * These results are for a repayment mortgage and are intended
@@ -1508,7 +1590,7 @@ const rotate = rotateAnim.interpolate({
         initialValues={{
           recepient_email: "",
           message: "",
-          link:`https://homeilove.co.uk/postRedirect?post_id=${type==="community"?data?.post?.post_community_id:data?.post?.post_property_id}&&type=${type==="community"?"community":"property"}`,
+          link:`https://homeilove.ca/postRedirect?post_id=${type==="community"?data?.post?.post_community_id:data?.post?.post_property_id}&&type=${type==="community"?"community":"property"}`,
           post_id:type==="community"?data?.post?.post_community_id:data?.post?.post_property_id,
           type:type,
         }}

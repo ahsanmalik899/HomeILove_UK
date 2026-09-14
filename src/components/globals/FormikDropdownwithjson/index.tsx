@@ -6,12 +6,12 @@ import { hs, ms, vs } from "@utils/design/design";
 import { useEffect, useState } from "react";
 import {
   FlatList,
+  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import DropDownPicker from "react-native-dropdown-picker";
 import { FormikDropdownProps } from "./type";
 
 export const FormikDropdownwithjson = ({
@@ -32,7 +32,9 @@ export const FormikDropdownwithjson = ({
 }: FormikDropdownProps) => {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState(options);
-
+useEffect(() => {
+  setItems(options);
+}, [options]);
   const [currentValue, setCurrentValue] = useState<string | number | null>(null);
   const [selectedData, setSelectedData] = useState<(string | number)[]>([]);
 
@@ -89,35 +91,140 @@ export const FormikDropdownwithjson = ({
 
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <View style={{ flex: 1 }}>
-          <DropDownPicker
-            open={open}
-            value={currentValue}
-            items={items}
-            setOpen={setOpen}
-            setItems={setItems}
-           listMode="SCROLLVIEW"
-  dropDownDirection={openDirection}
-            setValue={callback => {
-              const val = callback(currentValue) as string | number;
-              setCurrentValue(val);
+    
+<TouchableOpacity
+  activeOpacity={0.8}
+  onPress={() => setOpen(true)}
+  style={{
+    height: vs(48),
+    backgroundColor: Colors.light.LightGreen,
+    borderRadius: ms(18),
+    paddingHorizontal: hs(15),
+    justifyContent: "center",
+  }}
+>
+  <Text
+    style={{
+      fontFamily: "PopinRegula",
+      color:
+        currentValue === null || currentValue === ""
+          ? "#8A8A8A"
+          : "#000",
+    }}
+  >
+    {currentValue !== null && currentValue !== ""
+      ? items.find((item) => item.value === currentValue)?.label ??
+        String(currentValue)
+      : placeholder}
+  </Text>
+</TouchableOpacity>
 
-              if (!multipleFields) {
-                setValue(name, val);
-                onSelect?.(val);
-              }
-            }}
-            placeholder={placeholder}
-            style={{
-              backgroundColor: Colors.light.LightGreen,
-              borderColor: Colors.light.LightGreen,
-              borderRadius: ms(18),
-            }}
-            dropDownContainerStyle={{
-              backgroundColor: "white",
-              borderColor: "white",
-              elevation: 2,
-            }}
-          />
+<Modal
+  visible={open}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setOpen(false)}
+>
+  <View
+    style={{
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.45)",
+      justifyContent: "center",
+      paddingHorizontal: hs(25),
+    }}
+  >
+    <View
+      style={{
+        backgroundColor: "#fff",
+        borderRadius: ms(15),
+        maxHeight: "70%",
+        paddingVertical: vs(10),
+      }}
+    >
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          paddingHorizontal: hs(15),
+          paddingVertical: vs(10),
+        }}
+      >
+        <Text
+          style={{
+            fontSize: ms(16),
+            fontWeight: "700",
+            fontFamily: "PopinRegula",
+          }}
+        >
+          {title || "Select option"}
+        </Text>
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => setOpen(false)}
+        >
+          <Cross />
+        </TouchableOpacity>
+      </View>
+
+      <View
+        style={{
+          height: 1,
+          backgroundColor: "#eee",
+        }}
+      />
+
+      <FlatList
+        data={items}
+        keyExtractor={(item, index) =>
+          `${String(item.value)}-${index}`
+        }
+        showsVerticalScrollIndicator
+        nestedScrollEnabled
+        keyboardShouldPersistTaps="handled"
+        renderItem={({ item }) => {
+          const selected = item.value === currentValue;
+
+          return (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                setCurrentValue(item.value);
+
+                if (!multipleFields) {
+                  setValue(name, item.value);
+                  onSelect?.(item.value);
+                }
+
+                setOpen(false);
+              }}
+              style={{
+                paddingVertical: vs(14),
+                paddingHorizontal: hs(18),
+                backgroundColor: selected
+                  ? Colors.light.LightGreen
+                  : "#fff",
+                borderBottomWidth: 1,
+                borderBottomColor: "#eee",
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: "PopinRegula",
+                  fontSize: ms(14),
+                  fontWeight: selected ? "700" : "400",
+                }}
+              >
+                {item.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        }}
+      />
+    </View>
+  </View>
+</Modal>
         </View>
 
         {multipleFields && (

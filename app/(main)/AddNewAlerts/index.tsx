@@ -217,6 +217,7 @@ const index = () => {
                             if (val === "community") {
       setFieldValue("property_type", "");
       setFieldValue("property_subtype", "");
+       setFieldValue("beds", 0);
     } else {
       setFieldValue("community_type", "");
     }

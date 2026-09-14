@@ -1078,10 +1078,25 @@ editCommentApi: builder.mutation({
     body,
   }),
 }),
+calculateLoanApi: builder.mutation({
+  query: (body) => ({
+    url: "morgageCalculator", 
+    method: "POST",
+    body,
+  }),
+}),
+getLoanInterestRate: builder.query<any, void>({
+  query: () => ({
+    url: "loan-interest-rate",
+    method: "GET",
+  }),
+}),
   }),
 });
 
 export const {
+  useCalculateLoanApiMutation,
+  useGetLoanInterestRateQuery,
   useGetYourpostQuery,
   useGetContentpostQuery,
   useGetHomepostQuery,

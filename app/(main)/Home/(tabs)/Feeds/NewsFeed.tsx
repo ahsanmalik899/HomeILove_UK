@@ -64,22 +64,24 @@ const NewsFeeds = () => {
   }, []);
   const filter = [
     { id: 1, name: "All" },
-     { id: 2, name: "Property" },
-    { id: 3, name: "Community" },
-    { id: 4, name: "Agents" },
-    { id: 5, name: "Builders" },
-    { id: 6, name: "Mortgages" },
-    { id: 7, name: "Electricians" },
-    { id: 8, name: "Decor" },
-    { id: 9, name: "Plumbers" },
-    { id: 10, name: "Painters" },
-    { id: 11, name: "Investors" },
+     { id: 2, name: "Sale" },
+     { id: 3, name: "Rent" },
+    { id: 4, name: "Community" },
+    { id: 5, name: "Agents" },
+    { id: 6, name: "Builders" },
+    { id: 7, name: "Mortgages" },
+    { id: 8, name: "Electricians" },
+    { id: 9, name: "Decor" },
+    { id: 10, name: "Plumbers" },
+    { id: 11, name: "Painters" },
+    { id: 12, name: "Investors" },
   ];
 
   const renderFilterItem = ({ item }) => {
     const isActive = selectedFilter === item.name;
 
     return (
+      <View style={{paddingVertical:vs(20)}}>
       <TouchableOpacity
        activeOpacity={1}
        onPress={() => {
@@ -96,6 +98,7 @@ const NewsFeeds = () => {
           {item.name}
         </Text>
       </TouchableOpacity>
+      </View>
     );
   };
 
@@ -132,7 +135,7 @@ useEffect(() => {
   return (
     <View className="bg-white flex-1">
       <View style={styles.filterContainer}>
-        <Text style={styles.sortText}>Sort by</Text>
+       
 
         <FlatList
           data={filter}
@@ -185,7 +188,7 @@ useEffect(() => {
     const url =
       Platform.OS === "ios"
         ? "https://apps.apple.com/app/idYOUR_APP_ID" 
-        : "https://play.google.com/store/apps/details?id=com.revnosoft.homeilove";
+        : "https://play.google.com/store/apps/details?id=com.revnosoft.homeilove.uk";
 
     Linking.openURL(url);
   }}
@@ -208,7 +211,6 @@ useEffect(() => {
 const styles = StyleSheet.create({
   filterContainer: {
     backgroundColor:  "#F4F0F0",
-    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
   },
