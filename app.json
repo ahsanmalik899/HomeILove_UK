@@ -1,7 +1,7 @@
 {
   "expo": {
     "scheme": "homeiloveuk",
-    "name": "HomeILove.UK",
+    "name": "Homeilove.co.uk",
     "slug": "homeilove-uk",
     "version": "1.0.1",
     "orientation": "portrait",
@@ -139,9 +139,9 @@
       "router": {
         "origin": false
       },
-      "GOOGLE_MAPS_API_KEY": "AIzaSyCcUdqUPvVaJYw1IcCL1PvsUQJ99-tuHiY",
+      "GOOGLE_MAPS_API_KEY": "AIzaSyBaSaRVNgsBZTflG9WrJ7AwVm2cdJ5NerE",
       "eas": {
-        "projectId": "AIzaSyBaSaRVNgsBZTflG9WrJ7AwVm2cdJ5NerE"
+        "projectId": "8b39deda-2558-4bba-ae5c-3b6bea278cea"
       }
     }
   }

@@ -1056,7 +1056,7 @@ const index = () => {
             <Formik
               initialValues={{
                 visitor_email: "",
-                receiver_email: "ahsanmalik89939@gmail.com",
+                receiver_email: data?.posted_by?.email,
                 visitor_name: "",
                 visitor_contact: "",
                 visitor_message: "",

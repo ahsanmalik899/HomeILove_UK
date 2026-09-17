@@ -1646,7 +1646,7 @@ onEndReached={() => {
               initialValues={{
                 recepient_email: "",
                 message: "",
-                link: `https://homeilove.co.uk/postRedirect?post_id=${shareData?.post_id || shareData?.post_id}`,
+                link: `https://homeilove.co.uk/postRedirect?post_id=${shareData?.post_id || shareData?.post_id}&&type=post`,
                 post_id: shareData?.post_id,
                 post_type: shareData?.type,
                 post_image: shareData?.images?.[0] ?? "",

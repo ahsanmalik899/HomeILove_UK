@@ -1,4 +1,6 @@
+import { userdata } from "@/store/slices/selector/user";
 import Loading from "@src/components/globals/Loading";
+import { useAppSelector } from "@src/hooks/useReduxHooks";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
 import {
@@ -11,7 +13,15 @@ const index = () => {
     const type=params.type as string;
     const profileType= params.profile_type
     const token= params.token
+      const user = useAppSelector(userdata);
     useEffect(()=>{
+          const publicRoutes = ["forgot", "verify"];
+
+    // User not logged in
+    if (!user?.id && !publicRoutes.includes(type)) {
+      router.replace("/(auth)/signin");
+      return;
+    }
       switch(type){
         case "post":
           router.navigate({pathname:"/Home/Feeds/NewsFeed",params:{post_id:id,isPostSingle:"true"}})
