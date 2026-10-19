@@ -1,4 +1,3 @@
-import { hs, ms, vs } from "@utils/design/design";
 import { Image, ImageSourcePropType } from "react-native";
 
 type CircleImageProps = {
@@ -10,9 +9,9 @@ const CircleImage = ({ source, Size }: CircleImageProps) => {
   return (
     <Image
       style={{
-        height: vs(Size),
-        width: hs(Size),
-        borderRadius: ms(Size / 2),
+        height: Size,
+        width: Size,
+        borderRadius: Size/2,
         resizeMode: "contain",
         backgroundColor: "black",
       }}

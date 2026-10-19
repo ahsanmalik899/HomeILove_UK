@@ -475,30 +475,33 @@ const index = () => {
                             errors={!!errors.min_price}
                             required
                             errorText={errors.min_price}
-                            options={[
-                              { label: "No selection", value: "" },
-                              { label: "below £ 50,000", value: "0" },
-                              { label: "£ 50,000", value: "50000" },
-                              { label: "£ 70,000", value: "70000" },
-                              { label: "£ 100,000", value: "100000" },
-                              { label: "£ 120,000", value: "120000" },
-                              { label: "£ 150,000", value: "150000" },
-                              { label: "£ 175,000", value: "175000" },
-                              { label: "£ 200,000", value: "200000" },
-                              { label: "£ 250,000", value: "250000" },
-                              { label: "£ 300,000", value: "300000" },
-                              { label: "£ 350,000", value: "350000" },
-                              { label: "£ 400,000", value: "400000" },
-                              { label: "£ 500,000", value: "500000" },
-                              { label: "£ 600,000", value: "600000" },
-                              { label: "£ 700,000", value: "700000" },
-                              { label: "£ 900,000", value: "900000" },
-                              { label: "£ 1,000,000", value: "1000000" },
-                              { label: "£ 1,200,000", value: "1200000" },
-                              { label: "£ 1,500,000", value: "1500000" },
-                              { label: "£ 2,000,000", value: "2000000" },
-                              { label: "£ 3,000,000", value: "3000000" },
-                            ]}
+                           options={[
+  { label: "No selection", value: "" },
+  { label: "Below £50,000", value: "0" },
+  { label: "£50,000", value: "50000" },
+  { label: "£75,000", value: "75000" },
+  { label: "£100,000", value: "100000" },
+  { label: "£125,000", value: "125000" },
+  { label: "£150,000", value: "150000" },
+  { label: "£175,000", value: "175000" },
+  { label: "£200,000", value: "200000" },
+  { label: "£225,000", value: "225000" },
+  { label: "£250,000", value: "250000" },
+  { label: "£275,000", value: "275000" },
+  { label: "£300,000", value: "300000" },
+  { label: "£350,000", value: "350000" },
+  { label: "£400,000", value: "400000" },
+  { label: "£450,000", value: "450000" },
+  { label: "£500,000", value: "500000" },
+  { label: "£600,000", value: "600000" },
+  { label: "£750,000", value: "750000" },
+  { label: "£1,000,000", value: "1000000" },
+  { label: "£1,250,000", value: "1250000" },
+  { label: "£1,500,000", value: "1500000" },
+  { label: "£2,000,000", value: "2000000" },
+  { label: "£3,000,000", value: "3000000" },
+  { label: "£5,000,000", value: "5000000" },
+]}
                             onSelect={(value) => {
                               setFieldValue("min_price", value);
                             }}
@@ -514,30 +517,33 @@ const index = () => {
                             errors={!!errors.max_price}
                             required
                             errorText={errors.max_price}
-                            options={[
-                              { value: "", label: "No selection" },
-                              { value: "50000", label: "£ 50,000" },
-                              { value: "70000", label: "£ 70,000" },
-                              { value: "100000", label: "£ 100,000" },
-                              { value: "120000", label: "£ 120,000" },
-                              { value: "150000", label: "£ 150,000" },
-                              { value: "175000", label: "£ 175,000" },
-                              { value: "200000", label: "£ 200,000" },
-                              { value: "250000", label: "£ 250,000" },
-                              { value: "300000", label: "£ 300,000" },
-                              { value: "350000", label: "£ 350,000" },
-                              { value: "400000", label: "£ 400,000" },
-                              { value: "500000", label: "£ 500,000" },
-                              { value: "600000", label: "£ 600,000" },
-                              { value: "700000", label: "£ 700,000" },
-                              { value: "900000", label: "£ 900,000" },
-                              { value: "1000000", label: "£ 1,000,000" },
-                              { value: "1200000", label: "£ 1,200,000" },
-                              { value: "1500000", label: "£ 1,500,000" },
-                              { value: "2000000", label: "£ 2,000,000" },
-                              { value: "3000000", label: "£ 3,000,000" },
-                              { value: "3000001", label: "Above £ 3,000,000" },
-                            ]}
+                          options={[
+  { label: "No selection", value: "" },
+  { label: "£50,000", value: "50000" },
+  { label: "£75,000", value: "75000" },
+  { label: "£100,000", value: "100000" },
+  { label: "£125,000", value: "125000" },
+  { label: "£150,000", value: "150000" },
+  { label: "£175,000", value: "175000" },
+  { label: "£200,000", value: "200000" },
+  { label: "£225,000", value: "225000" },
+  { label: "£250,000", value: "250000" },
+  { label: "£275,000", value: "275000" },
+  { label: "£300,000", value: "300000" },
+  { label: "£350,000", value: "350000" },
+  { label: "£400,000", value: "400000" },
+  { label: "£450,000", value: "450000" },
+  { label: "£500,000", value: "500000" },
+  { label: "£600,000", value: "600000" },
+  { label: "£750,000", value: "750000" },
+  { label: "£1,000,000", value: "1000000" },
+  { label: "£1,250,000", value: "1250000" },
+  { label: "£1,500,000", value: "1500000" },
+  { label: "£2,000,000", value: "2000000" },
+  { label: "£3,000,000", value: "3000000" },
+  { label: "£5,000,000", value: "5000000" },
+  { label: "Above £5,000,000", value: "5000001" },
+]}
                             onSelect={(value) =>
                               setFieldValue("max_price", value)
                             }
@@ -557,30 +563,26 @@ const index = () => {
                             errors={!!errors.min_rent}
                             required
                             errorText={errors.min_rent}
-                            options={[
-                              { label: "No selection", value: "" },
-                              { label: "below £ 50,000", value: "0" },
-                              { label: "£ 50,000", value: "50000" },
-                              { label: "£ 70,000", value: "70000" },
-                              { label: "£ 100,000", value: "100000" },
-                              { label: "£ 120,000", value: "120000" },
-                              { label: "£ 150,000", value: "150000" },
-                              { label: "£ 175,000", value: "175000" },
-                              { label: "£ 200,000", value: "200000" },
-                              { label: "£ 250,000", value: "250000" },
-                              { label: "£ 300,000", value: "300000" },
-                              { label: "£ 350,000", value: "350000" },
-                              { label: "£ 400,000", value: "400000" },
-                              { label: "£ 500,000", value: "500000" },
-                              { label: "£ 600,000", value: "600000" },
-                              { label: "£ 700,000", value: "700000" },
-                              { label: "£ 900,000", value: "900000" },
-                              { label: "£ 1,000,000", value: "1000000" },
-                              { label: "£ 1,200,000", value: "1200000" },
-                              { label: "£ 1,500,000", value: "1500000" },
-                              { label: "£ 2,000,000", value: "2000000" },
-                              { label: "£ 3,000,000", value: "3000000" },
-                            ]}
+                           options={[
+  { label: "No selection", value: "" },
+  { label: "Below £500", value: "0" },
+  { label: "£500", value: "500" },
+  { label: "£750", value: "750" },
+  { label: "£1,000", value: "1000" },
+  { label: "£1,250", value: "1250" },
+  { label: "£1,500", value: "1500" },
+  { label: "£1,750", value: "1750" },
+  { label: "£2,000", value: "2000" },
+  { label: "£2,250", value: "2250" },
+  { label: "£2,500", value: "2500" },
+  { label: "£2,750", value: "2750" },
+  { label: "£3,000", value: "3000" },
+  { label: "£3,500", value: "3500" },
+  { label: "£4,000", value: "4000" },
+  { label: "£5,000", value: "5000" },
+  { label: "£7,500", value: "7500" },
+  { label: "£10,000", value: "10000" },
+]}
                             onSelect={(value) => {
                               setFieldValue("min_rent", value);
                             }}
@@ -596,30 +598,26 @@ const index = () => {
                             errors={!!errors.max_rent}
                             required
                             errorText={errors.max_rent}
-                            options={[
-                              { value: "", label: "No selection" },
-                              { value: "50000", label: "£ 50,000" },
-                              { value: "70000", label: "£ 70,000" },
-                              { value: "100000", label: "£ 100,000" },
-                              { value: "120000", label: "£ 120,000" },
-                              { value: "150000", label: "£ 150,000" },
-                              { value: "175000", label: "£ 175,000" },
-                              { value: "200000", label: "£ 200,000" },
-                              { value: "250000", label: "£ 250,000" },
-                              { value: "300000", label: "£ 300,000" },
-                              { value: "350000", label: "£ 350,000" },
-                              { value: "400000", label: "£ 400,000" },
-                              { value: "500000", label: "£ 500,000" },
-                              { value: "600000", label: "£ 600,000" },
-                              { value: "700000", label: "£ 700,000" },
-                              { value: "900000", label: "£ 900,000" },
-                              { value: "1000000", label: "£ 1,000,000" },
-                              { value: "1200000", label: "£ 1,200,000" },
-                              { value: "1500000", label: "£ 1,500,000" },
-                              { value: "2000000", label: "£ 2,000,000" },
-                              { value: "3000000", label: "£ 3,000,000" },
-                              { value: "3000001", label: "Above £ 3,000,000" },
-                            ]}
+                           options={[
+  { label: "No selection", value: "" },
+  { label: "£500", value: "500" },
+  { label: "£750", value: "750" },
+  { label: "£1,000", value: "1000" },
+  { label: "£1,250", value: "1250" },
+  { label: "£1,500", value: "1500" },
+  { label: "£1,750", value: "1750" },
+  { label: "£2,000", value: "2000" },
+  { label: "£2,250", value: "2250" },
+  { label: "£2,500", value: "2500" },
+  { label: "£2,750", value: "2750" },
+  { label: "£3,000", value: "3000" },
+  { label: "£3,500", value: "3500" },
+  { label: "£4,000", value: "4000" },
+  { label: "£5,000", value: "5000" },
+  { label: "£7,500", value: "7500" },
+  { label: "£10,000", value: "10000" },
+  { label: "Above £10,000", value: "10001" },
+]}
                             onSelect={(value) =>
                               setFieldValue("max_rent", value)
                             }
@@ -1302,30 +1300,26 @@ const index = () => {
                           required
                           openDirection="TOP"
                           errorText={errors.min_price}
-                          options={[
-                            { label: "No selection", value: "" },
-                            { label: "below £ 50,000", value: "0" },
-                            { label: "£ 50,000", value: "50000" },
-                            { label: "£ 70,000", value: "70000" },
-                            { label: "£ 100,000", value: "100000" },
-                            { label: "£ 120,000", value: "120000" },
-                            { label: "£ 150,000", value: "150000" },
-                            { label: "£ 175,000", value: "175000" },
-                            { label: "£ 200,000", value: "200000" },
-                            { label: "£ 250,000", value: "250000" },
-                            { label: "£ 300,000", value: "300000" },
-                            { label: "£ 350,000", value: "350000" },
-                            { label: "£ 400,000", value: "400000" },
-                            { label: "£ 500,000", value: "500000" },
-                            { label: "£ 600,000", value: "600000" },
-                            { label: "£ 700,000", value: "700000" },
-                            { label: "£ 900,000", value: "900000" },
-                            { label: "£ 1,000,000", value: "1000000" },
-                            { label: "£ 1,200,000", value: "1200000" },
-                            { label: "£ 1,500,000", value: "1500000" },
-                            { label: "£ 2,000,000", value: "2000000" },
-                            { label: "£ 3,000,000", value: "3000000" },
-                          ]}
+                        options={[
+  { label: "No selection", value: "" },
+  { label: "Below £100,000", value: "0" },
+  { label: "£100,000", value: "100000" },
+  { label: "£150,000", value: "150000" },
+  { label: "£200,000", value: "200000" },
+  { label: "£250,000", value: "250000" },
+  { label: "£300,000", value: "300000" },
+  { label: "£400,000", value: "400000" },
+  { label: "£500,000", value: "500000" },
+  { label: "£600,000", value: "600000" },
+  { label: "£750,000", value: "750000" },
+  { label: "£1,000,000", value: "1000000" },
+  { label: "£1,500,000", value: "1500000" },
+  { label: "£2,000,000", value: "2000000" },
+  { label: "£3,000,000", value: "3000000" },
+  { label: "£5,000,000", value: "5000000" },
+  { label: "£7,500,000", value: "7500000" },
+  { label: "£10,000,000", value: "10000000" },
+]}
                           onSelect={(value) => {
                             setFieldValue("min_price", value);
                           }}
@@ -1342,30 +1336,26 @@ const index = () => {
                           required
                           openDirection="TOP"
                           errorText={errors.max_price}
-                          options={[
-                            { value: "", label: "No selection" },
-                            { value: "50000", label: "£ 50,000" },
-                            { value: "70000", label: "£ 70,000" },
-                            { value: "100000", label: "£ 100,000" },
-                            { value: "120000", label: "£ 120,000" },
-                            { value: "150000", label: "£ 150,000" },
-                            { value: "175000", label: "£ 175,000" },
-                            { value: "200000", label: "£ 200,000" },
-                            { value: "250000", label: "£ 250,000" },
-                            { value: "300000", label: "£ 300,000" },
-                            { value: "350000", label: "£ 350,000" },
-                            { value: "400000", label: "£ 400,000" },
-                            { value: "500000", label: "£ 500,000" },
-                            { value: "600000", label: "£ 600,000" },
-                            { value: "700000", label: "£ 700,000" },
-                            { value: "900000", label: "£ 900,000" },
-                            { value: "1000000", label: "£ 1,000,000" },
-                            { value: "1200000", label: "£ 1,200,000" },
-                            { value: "1500000", label: "£ 1,500,000" },
-                            { value: "2000000", label: "£ 2,000,000" },
-                            { value: "3000000", label: "£ 3,000,000" },
-                            { value: "3000001", label: "Above £ 3,000,000" },
-                          ]}
+                         options={[
+  { label: "No selection", value: "" },
+  { label: "£100,000", value: "100000" },
+  { label: "£150,000", value: "150000" },
+  { label: "£200,000", value: "200000" },
+  { label: "£250,000", value: "250000" },
+  { label: "£300,000", value: "300000" },
+  { label: "£400,000", value: "400000" },
+  { label: "£500,000", value: "500000" },
+  { label: "£600,000", value: "600000" },
+  { label: "£750,000", value: "750000" },
+  { label: "£1,000,000", value: "1000000" },
+  { label: "£1,500,000", value: "1500000" },
+  { label: "£2,000,000", value: "2000000" },
+  { label: "£3,000,000", value: "3000000" },
+  { label: "£5,000,000", value: "5000000" },
+  { label: "£7,500,000", value: "7500000" },
+  { label: "£10,000,000", value: "10000000" },
+  { label: "Above £10,000,000", value: "10000001" },
+]}
                           onSelect={(value) =>
                             setFieldValue("max_price", value)
                           }

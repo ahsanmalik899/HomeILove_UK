@@ -49,7 +49,7 @@ useEffect(() => {
     tabBarStyle: {
       position: "absolute",
 
-      height: vs(60),
+      height: 60,
 
       backgroundColor: "#FFFFFF",
 

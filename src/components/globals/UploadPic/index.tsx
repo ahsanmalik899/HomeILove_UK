@@ -2,6 +2,7 @@ import Cross from "@assets/CreateProfile/cross.svg";
 import Colors from "@src/constants/Colors";
 import { hs, ms, vs } from "@utils/design/design";
 import { ImageFormater } from "@utils/ImageFormat";
+import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { UploadPic } from "./type";
@@ -50,38 +51,63 @@ const index = ({
 
   /* ================= PICK IMAGE ================= */
 
-// In UploadPic component:
 const pickImage = async () => {
-  const remaining = limt - images.length;
-  if (remaining <= 0) {
-    alert(`You can upload only ${limt} image${limt > 1 ? "s" : ""}`);
-    return;
-  }
+  try {
+    const remaining = limt - images.length;
 
-  const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsMultipleSelection: limt > 1,
-    selectionLimit: limt > 1 ? remaining : 1,
-    quality: 1,
-  });
+    if (remaining <= 0) {
+      alert(`You can upload only ${limt} image${limt > 1 ? "s" : ""}`);
+      return;
+    }
 
-  if (result.canceled) return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: limt > 1,
+      selectionLimit: limt > 1 ? remaining : 1,
 
-  const files = result.assets.map((asset) => {
-    const uri = asset.uri;
-    const filename = uri.split("/").pop() || `image-${Date.now()}.jpg`;
-    const ext = filename.split(".").pop();
-    return {
-      uri,
-      name: filename,
-      type: `image/${ext || "jpeg"}`,
-    };
-  });
+      // Initial compression from picker
+      quality: 0.8,
+    });
 
-  if (limt === 1) {
-    setValue(name, files[0]); 
-  } else {
-    setValue(name, [...images, ...files]);
+    if (result.canceled) return;
+
+    const files = await Promise.all(
+      result.assets.map(async (asset, index) => {
+        // Create manipulator
+        const context = ImageManipulator.ImageManipulator.manipulate(asset.uri);
+
+        // Resize only if image is very large
+        if (asset.width && asset.width > 1200) {
+          context.resize({
+            width: 1200,
+            height: null,
+          });
+        }
+
+        const renderedImage = await context.renderAsync();
+
+        // Final compression
+        const compressedImage = await renderedImage.saveAsync({
+          compress: 0.6,
+          format: ImageManipulator.SaveFormat.JPEG,
+        });
+
+        return {
+          uri: compressedImage.uri,
+          name: `image-${Date.now()}-${index}.jpg`,
+          type: "image/jpeg",
+        };
+      })
+    );
+
+    if (limt === 1) {
+      setValue(name, files[0]);
+    } else {
+      setValue(name, [...images, ...files]);
+    }
+  } catch (error) {
+    console.log("Image Pick/Compression Error:", error);
+    alert("Something went wrong while processing image");
   }
 };
 
@@ -122,7 +148,6 @@ const pickImage = async () => {
             {images.map((img, index) => (
               <View key={index} className="relative">
                 <TouchableOpacity
-                 activeOpacity={1}
                   onPress={() => {
                     if (limt === 1) {
                       setValue(name, null);
@@ -156,8 +181,7 @@ const pickImage = async () => {
         {/* ---------- ADD BUTTON ---------- */}
         {images.length < limt && (
 
-          <TouchableOpacity
-           activeOpacity={1} onPress={pickImage}>
+          <TouchableOpacity onPress={pickImage}>
             {UploadComponenet?(<UploadComponenet/>):(
                <View
               style={[

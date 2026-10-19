@@ -37,9 +37,10 @@ export const MainApi = createApi({
     "conversations",
     "GetReviews",
     "YourPosts",
-    "singlePost"
+    "singlePost",
+    "userRevies"
   ],
-  baseQuery: fetchBaseQuery({ baseUrl: "https://homeilove.co.uk/api/" }),
+  baseQuery: fetchBaseQuery({ baseUrl: "https://www.homeilove.co.uk/api/" }),
   endpoints: (builder) => ({
     getYourpost: builder.query<FeedResponse, GetPostType>({
       query: ({ userid, page }) => ({
@@ -843,7 +844,7 @@ export const MainApi = createApi({
         method: "POST",
         body: data,
       }),
-      invalidatesTags:["checkReview","myProfile"]
+       invalidatesTags:["checkReview","myProfile","userRevies"]
     }),
     updateReviewApi: builder.mutation({
       query: ({ body }) => ({
@@ -851,6 +852,7 @@ export const MainApi = createApi({
         method: "POST",
         body,
       }),
+       invalidatesTags:["userRevies"]
     }),
     updateAccountApi: builder.mutation({
       query: (formatdata:FormData) => ({
@@ -1085,6 +1087,18 @@ calculateLoanApi: builder.mutation({
     body,
   }),
 }),
+   getProfileReviews: builder.query<any,
+  {
+    receiver_profile_id: string;
+    receiver_profile_type: string;
+  }>({
+  query: (params) => ({
+    url: "getProfileReviews",
+    method: "GET",
+    params,
+  }),
+   providesTags:["userRevies"]
+}),
 getLoanInterestRate: builder.query<any, void>({
   query: () => ({
     url: "loan-interest-rate",
@@ -1116,6 +1130,7 @@ export const {
   useSendVisistRequestMutation,
   useGetPostCountQuery,
   useGetDataForEditQuery,
+   useGetProfileReviewsQuery,
   useUpdatePropertyMutation,
   useUpdateCommunityMutation,
   useGetHomeFeedsQuery,

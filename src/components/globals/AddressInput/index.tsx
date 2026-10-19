@@ -204,7 +204,7 @@ export const AdressInput = ({
           backgroundColor: Colors.light.LightGreen,
           borderRadius: ms(18),
           paddingHorizontal: hs(12),
-          height: vs(45),
+          height: 45,
         }}
       />
 
@@ -237,7 +237,6 @@ export const AdressInput = ({
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
               <TouchableOpacity
-               activeOpacity={1}
                 onPress={() =>
                   handleSelectSuggestion(item.description, item.place_id)
                 }
@@ -263,7 +262,6 @@ export const AdressInput = ({
         <>
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-             activeOpacity={1}
               style={styles.button}
               onPress={() => setMapType("standard")}
             >
@@ -275,7 +273,6 @@ export const AdressInput = ({
             </TouchableOpacity>
 
             <TouchableOpacity
-             activeOpacity={1}
               style={styles.button}
               onPress={() => setMapType("satellite")}
             >
@@ -287,7 +284,6 @@ export const AdressInput = ({
             </TouchableOpacity>
 
             <TouchableOpacity
-             activeOpacity={1}
               style={styles.button}
               onPress={() => setMapType("hybrid")}
             >

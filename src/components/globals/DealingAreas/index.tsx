@@ -221,9 +221,7 @@ const isFetching = cityOnly
 
       {/* Nationwide Toggle */}
       <View className="flex-row items-center gap-1 ">
-        <TouchableOpacity 
-         activeOpacity={1}
-         onPress={toggleNationwide}>
+        <TouchableOpacity onPress={toggleNationwide}>
           <MaterialIcons
             size={25}
             color={Colors.light.DarkGreen}
@@ -258,17 +256,16 @@ const isFetching = cityOnly
             backgroundColor: Colors.light.LightGreen,
             borderRadius: ms(18),
             paddingHorizontal: hs(12),
-            height: vs(45),
+            height: 45,
           }}
         />
         <TouchableOpacity
-         activeOpacity={1}
           style={{
             marginLeft: hs(8),
             backgroundColor: Colors.light.LightGreen,
             borderRadius: ms(8),
             paddingHorizontal: hs(12),
-            height: vs(45),
+            height: 45,
             justifyContent: "center",
             alignItems: "center",
           }}
@@ -309,7 +306,6 @@ const isFetching = cityOnly
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
               <TouchableOpacity
-               activeOpacity={1}
                 onPress={() =>
                   handleSelectSuggestion(item.description, item.place_id)
                 }
@@ -372,9 +368,7 @@ const isFetching = cityOnly
                 {item}
               </Text>
             </View>
-            <TouchableOpacity
-             activeOpacity={1}
-              onPress={() => handleRemove(index)}>
+            <TouchableOpacity onPress={() => handleRemove(index)}>
               <Cross />
             </TouchableOpacity>
           </View>

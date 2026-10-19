@@ -8,10 +8,10 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SideBarCardprops } from "./type";
 const index = ({ Svg, text, type, totalPosts,profileType,id,isBlocked, onPress=()=>{},ProfileExist }: SideBarCardprops) => {
   console.log("isblocked",isBlocked)
+  const iconSize = ms(60);
   return (
     <TouchableOpacity
-     activeOpacity={1}
-      style={[styles.card, { height: type === "Buy" ? vs(160) : vs(140) ,backgroundColor:ProfileExist?'#F4F0F0':'white'}]}
+      style={[styles.card, { height: type === "Buy" ? vs(160) : vs(160) ,backgroundColor:ProfileExist?'#F4F0F0':'white'}]}
       onPress={() => {
         type === "busenessProfile"
           ? router.navigate({
@@ -41,10 +41,11 @@ const index = ({ Svg, text, type, totalPosts,profileType,id,isBlocked, onPress=(
       )}
 
       <View className="items-center self-center ">
-         <Svg
-    width={hs(60)}
-    height={vs(60)}
-  />
+
+  <View style={styles.svgContainer}>
+    <Svg
+    />
+  </View>
         <Text
           style={{
             marginTop: vs(10),
@@ -64,13 +65,30 @@ const index = ({ Svg, text, type, totalPosts,profileType,id,isBlocked, onPress=(
 export default index;
 
 const styles = StyleSheet.create({
-  card: {
-    width: hs(160),
-    backgroundColor: "white",
-    elevation: 5,
-    borderRadius: ms(10),
-    paddingHorizontal: hs(5),
-    paddingBottom: vs(10),
-    marginBottom: vs(10),
+card: {
+  width: hs(160),
+  backgroundColor: "white",
+  elevation: 6,
+
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 3,
+  },
+  shadowOpacity: 0.18,
+  shadowRadius: 5,
+
+  overflow: "visible",
+
+  borderRadius: ms(10),
+  paddingHorizontal: hs(5),
+  paddingBottom: vs(10),
+  marginBottom: vs(10),
+},
+  svgContainer: {
+    width: ms(60),
+    height: ms(60),
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

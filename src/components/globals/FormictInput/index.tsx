@@ -113,7 +113,6 @@ export const FormikInput = ({
         </View>
         {mulipleFields && (
           <TouchableOpacity
-           activeOpacity={1}
             style={{
               backgroundColor: Colors.light.LightGreen,
               borderRadius: ms(8),
@@ -155,7 +154,6 @@ export const FormikInput = ({
                   </Text>
                 </View>
                 <TouchableOpacity
-                 activeOpacity={1}
                   onPress={() => {
                     handleRemove(index);
                   }}
@@ -175,14 +173,20 @@ export const FormikInput = ({
 };
 const styles = StyleSheet.create({
   title: { fontSize: ms(14), fontWeight: 700,fontFamily: "PopinRegula", },
-  inputdes: {
-    height: vs(120),
-    textAlignVertical: "top",
-  },
-  input: {
-    backgroundColor: "transparent",
-    fontFamily: "PopinRegula",
-  },
+inputdes: {
+  minHeight: 100,
+  maxHeight: 160,
+  textAlignVertical: "top",
+  paddingTop: 12,
+  paddingHorizontal: 10,
+  fontFamily: "PopinRegula",
+},
+input: {
+  height: 48,
+  backgroundColor: "transparent",
+  fontFamily: "PopinRegula",
+  paddingHorizontal: 10,
+},
       card: {
       backgroundColor: "#fff",
       borderRadius: ms(10),

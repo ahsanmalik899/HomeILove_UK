@@ -1,5 +1,5 @@
 
-import { useAcceptRequestApiMutation, useAskvaluationapiMutation, useCancelRequestApiMutation, useCheckReviewApiQuery, useGetotherPastWorkQuery, useGetProfilesForConectionQuery, useGetSingleProfileQuery, useLazyGetRandomAdQuery, useSaveItemApiMutation, useSendRequestMutation, useShare_profileApiMutation, useUnfollowApiMutation, useUnsaveItemApiMutation, useUserAgentPastPostsApiQuery, useWriteReviewApiMutation } from '@/store/api/user/MainApi';
+import { useAcceptRequestApiMutation, useAskvaluationapiMutation, useCancelRequestApiMutation, useCheckReviewApiQuery, useGetotherPastWorkQuery, useGetProfileReviewsQuery, useGetProfilesForConectionQuery, useGetSingleProfileQuery, useLazyGetRandomAdQuery, useSaveItemApiMutation, useSendRequestMutation, useShare_profileApiMutation, useUnfollowApiMutation, useUnsaveItemApiMutation, useUserAgentPastPostsApiQuery, useWriteReviewApiMutation } from '@/store/api/user/MainApi';
 import { userdata } from '@/store/slices/selector/user';
 import Call from "@assets/Buy/call.svg";
 import Cross from "@assets/CreateProfile/cross.svg";
@@ -7,7 +7,7 @@ import RedHeart from "@assets/CreateProfile/heart-red.svg";
 import Heart from "@assets/icons/heart.svg";
 import Share from "@assets/icons/share.svg";
 import NoImage from "@assets/SideBar/no_images.png";
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import Colors from '@src/constants/Colors';
 import { useAppSelector } from '@src/hooks/useReduxHooks';
@@ -16,13 +16,15 @@ import { hs, ms, vs } from '@utils/design/design';
 import { ImageFormater } from '@utils/ImageFormat';
 import { makeCall } from '@utils/makeCall';
 import * as Clipboard from "expo-clipboard";
+import { File, Paths } from "expo-file-system";
 import { router } from 'expo-router';
 import * as WebBrowser from "expo-web-browser";
 import { Formik } from 'formik';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Animated, Easing, FlatList, Image, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import RNShare from "react-native-share";
 import * as Yup from 'yup';
 import { AdressInput } from '../AddressInput';
 import CircleImage from '../CircleImage/CircleImage';
@@ -42,6 +44,7 @@ const ProfileSingleView = ({ type, id, setshowModel,setData ,  onSavedChange}: {
    const {data:reviewData,isfetching}=useCheckReviewApiQuery({receiver_profile_id:id,sender_id:user?.id,profile_type:type})
   const [initialLoadDone, setInitialLoadDone] = useState(false);
   const [reviewModal, setReviewModal] = useState(false);
+  const [showReviewsModal, setShowReviewsModal] = useState(false);
   const [review, setReview] = useState("");
   const [postrating, setpostRating] = useState(0);
   useEffect(()=>{
@@ -57,7 +60,239 @@ setpostRating(Number(reviewData?.data?.rating)||0)
     const [acceptRequestApi, { isLoading: accepting }] = useAcceptRequestApiMutation();
   const [showShare, setShowShare] = useState(false);
   const [askEvaluation, { isLoading: askEvaluationLoading }] = useAskvaluationapiMutation();
- 
+ // ADD BELOW:
+// const profile = data?.data;
+
+const downloadShareImage = async (
+  imageUrl: string,
+  profileId: string | number
+) => {
+  try {
+    if (!imageUrl) return null;
+
+    const cleanUrl = imageUrl.split("?")[0].toLowerCase();
+
+    let extension = "jpg";
+
+    if (cleanUrl.endsWith(".png")) {
+      extension = "png";
+    } else if (cleanUrl.endsWith(".webp")) {
+      extension = "webp";
+    } else if (cleanUrl.endsWith(".jpeg")) {
+      extension = "jpeg";
+    }
+
+    const destination = new File(
+      Paths.cache,
+      `sweetghar-profile-${profileId}-${Date.now()}.${extension}`
+    );
+
+    const downloadedFile = await File.downloadFileAsync(
+      imageUrl,
+      destination
+    );
+
+    return downloadedFile.uri;
+  } catch (error) {
+    console.log("Profile image download error:", error);
+    return null;
+  }
+};
+
+
+const getProfileTypeLabel = () => {
+  const normalizedType =
+    type?.toLowerCase()?.trim() || "";
+
+  const labels: Record<string, string> = {
+    agent: "Property Agent",
+    builder: "Builder",
+    mortgage: "Mortgage Advisor",
+    investor: "Investor",
+    painter: "Painter",
+    plumber: "Plumber",
+    electrician: "Electrician",
+    decor: "Interior Decorator",
+    material_supplier: "Material Supplier",
+  };
+
+  return (
+    labels[normalizedType] ||
+    normalizedType
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase()) ||
+    "Professional"
+  );
+};
+
+
+const buildProfileShareContent = () => {
+  const profileType =
+    type?.toLowerCase()?.trim() || "";
+
+  const profileUrl =
+    `https://sweetghar.com/postRedirect?post_id=${id}&&type=profile&&profile_type=${profileType}`;
+
+  const profileTypeLabel =
+    getProfileTypeLabel();
+
+  const businessName =
+    profile?.business_name || "";
+
+  const location =
+    [
+      profile?.city,
+      profile?.state,
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+  const shareText =
+    `${profileTypeLabel}` +
+    `${businessName ? ` - ${businessName}` : ""}` +
+    `${location ? ` in ${location}` : ""}`;
+
+  return {
+    profileUrl,
+    shareText,
+    message: `${shareText}\n${profileUrl}`,
+  };
+};
+
+
+const openFallbackShare = async (
+  options: any
+) => {
+  try {
+    await RNShare.open({
+      ...options,
+      failOnCancel: false,
+    });
+  } catch (error) {
+    console.log(
+      "Fallback share error:",
+      error
+    );
+  }
+};
+
+
+const shareOnSocial = async (
+  platform:
+    | "whatsapp"
+    | "facebook"
+    | "twitter"
+    | "linkedin"
+        | "more"
+) => {
+  try {
+    if (!id) {
+      renderToastError("Profile not found");
+      return;
+    }
+
+    const {
+      profileUrl,
+      shareText,
+      message,
+    } = buildProfileShareContent();
+
+    const remoteImage =
+      profile?.cover
+        ? ImageFormater(profile.cover)
+        : profile?.logo
+        ? ImageFormater(profile.logo)
+        : null;
+
+    const localImage =
+      remoteImage
+        ? await downloadShareImage(
+            remoteImage,
+            id
+          )
+        : null;
+
+    const shareOptions: any = {
+      title: shareText,
+      message,
+      url: localImage || profileUrl,
+      failOnCancel: false,
+
+      ...(localImage && {
+        type: "image/*",
+      }),
+
+      ...(Platform.OS === "android" &&
+        localImage && {
+          useInternalStorage: true,
+        }),
+    };
+
+    try {
+      if (platform === "whatsapp") {
+        await RNShare.shareSingle({
+          ...shareOptions,
+          social:
+            RNShare.Social.WHATSAPP,
+        });
+
+        return;
+      }
+
+      if (platform === "facebook") {
+        await RNShare.shareSingle({
+          ...shareOptions,
+          social:
+            RNShare.Social.FACEBOOK,
+        });
+
+        return;
+      }
+
+      if (
+        platform === "twitter" &&
+        Platform.OS === "ios"
+      ) {
+        await RNShare.shareSingle({
+          ...shareOptions,
+          social:
+            RNShare.Social.TWITTER,
+        });
+
+        return;
+      }
+if (platform === "more") {
+  await openFallbackShare(
+    shareOptions
+  );
+
+  return;
+}
+      await openFallbackShare(
+        shareOptions
+      );
+    } catch (socialError) {
+      console.log(
+        `${platform} direct share error:`,
+        socialError
+      );
+
+      await openFallbackShare(
+        shareOptions
+      );
+    }
+  } catch (error: any) {
+    console.log(
+      "Profile social share error:",
+      error
+    );
+
+    renderToastError(
+      error?.message ||
+        "Unable to share profile"
+    );
+  }
+};
   const ReviewSchema = Yup.object().shape({
     review: Yup.string()
       .required("Review is required")
@@ -79,6 +314,21 @@ setpostRating(Number(reviewData?.data?.rating)||0)
   const { data, isLoading,refetch:refetchProfile } = useGetSingleProfileQuery({ type: type?.toLocaleLowerCase(), id: id,user_id:user?.id });
   const [share_profileApi, { isLoading: sharing }] = useShare_profileApiMutation();
   const profile = data?.data;
+  const {
+  data: allReviewsData,
+  isLoading: reviewsLoading,
+  refetch: refetchReviews,
+} = useGetProfileReviewsQuery(
+  {
+    receiver_profile_id: id,
+    receiver_profile_type: type,
+  },
+  {
+    skip: !id || !type,
+  }
+);
+
+const allReviews = allReviewsData?.reviews || [];
   const [connectionStatus, setConnectionStatus] = useState("");
 
 useEffect(() => {
@@ -447,9 +697,19 @@ const insets = useSafeAreaInsets();
 
         {/* Services */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Service for</Text>
-          <Text style={styles.text}>{profile?.services||profile?.agent_for}</Text>
-
+          {profile?.material ? (
+    <>
+      <Text style={styles.sectionTitle}>Material Supplies</Text>
+      <Text style={styles.text}>{profile.material}</Text>
+    </>
+  ) : profile?.services || profile?.agent_for ? (
+    <>
+      <Text style={styles.sectionTitle}>Services For</Text>
+      <Text style={styles.text}>
+        {profile?.services || profile?.agent_for}
+      </Text>
+    </>
+  ) : null}
           <Text style={[styles.sectionTitle, { marginTop: 10 }]}>
             Dealing Areas
           </Text>
@@ -909,13 +1169,23 @@ const insets = useSafeAreaInsets();
               Reviews
             </Text>
 
-            <View style={styles.ratingBox}>
-              <StarRating rating={rating} size={26} />
+          <TouchableOpacity
+  activeOpacity={0.8}
+  style={styles.ratingBox}
+  onPress={() => setShowReviewsModal(true)}
+>
+  <StarRating rating={rating} size={26} />
 
-              <Text style={styles.ratingValue}>{rating.toFixed(1)}</Text>
+  <Text style={styles.ratingValue}>
+    {rating.toFixed(1)}
+  </Text>
 
-              <Text style={styles.reviewCount}>{totalReviews} Reviews</Text>
-            </View>
+  <Text style={styles.reviewCount}>
+    {totalReviews} Reviews
+  </Text>
+
+
+</TouchableOpacity>
 
             <TouchableOpacity
              activeOpacity={1}
@@ -1039,8 +1309,11 @@ const insets = useSafeAreaInsets();
                     </Text>
 
                     {Profiles?.profiles?.map((item, index) => {
-                      const selected =
-                        values.sender_profile_type === item.profile_type.toLowerCase();
+                   const selected =
+  values.sender_profile_type ===
+  (item.profile_type === "Business" || item.profile_type === "Private"
+    ? item.profile_type
+    : item.profile_type.toLowerCase());
 
                       return (
                         <TouchableOpacity
@@ -1055,9 +1328,11 @@ const insets = useSafeAreaInsets();
                           ]}
                           onPress={() => {
                             setFieldValue(
-                              "sender_profile_type",
-                              item.profile_type.toLowerCase()
-                            );
+  "sender_profile_type",
+  item.profile_type === "Business" || item.profile_type === "Private"
+    ? item.profile_type
+    : item.profile_type.toLowerCase()
+);
                             setFieldValue("sender_profile_id", item.profile_id);
                           }}
                         >
@@ -1121,47 +1396,310 @@ const insets = useSafeAreaInsets();
         </SafeAreaView>
           <Loading isLoading={sendingReview} text='Loading...'/>
       </Modal>
-      <Modal visible={showShare} animationType="slide" transparent>
-          <SafeAreaView
-                                                         style={{ flex: 1 }}
-                                                         edges={[ "bottom", "left", "right"]}
-                                                       >
-        <View style={{
-          flex: 1,
-          backgroundColor: "rgba(0,0,0,0.5)",
-          justifyContent: "flex-end",
-        }}>
+    <Modal
+  visible={showShare}
+  animationType="slide"
+  transparent
+  statusBarTranslucent
+  onRequestClose={() => setShowShare(false)}
+>
+  <SafeAreaView
+    style={{ flex: 1 }}
+    edges={["top", "bottom", "left", "right"]}
+  >
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        justifyContent: "flex-end",
+      }}
+    >
+      <View
+        style={{
+          backgroundColor: "#fff",
+          borderTopLeftRadius: ms(20),
+          borderTopRightRadius: ms(20),
+          paddingHorizontal: hs(20),
+          paddingTop: vs(12),
+          paddingBottom: vs(15),
+          maxHeight: "85%",
+        }}
+      >
+        {/* Header */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: vs(15),
+          }}
+        >
+          <Text
+            style={{
+              fontSize: ms(18),
+              fontWeight: "600",
+              fontFamily: "PopinRegula",
+            }}
+          >
+            Share Profile
+          </Text>
 
-          <View style={{
-            backgroundColor: "#fff",
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            padding: 20,
-            minHeight: "80%",
-          }}>
-
-            <View style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => setShowShare(false)}
+            style={{
+              width: hs(38),
+              height: hs(38),
+              borderRadius: hs(19),
               alignItems: "center",
-              marginBottom: 15
-            }}>
-              <Text style={{ fontSize: 18, fontWeight: "600" }}>
-                Share Post
-              </Text>
+              justifyContent: "center",
+            }}
+          >
+            <Cross height={vs(22)} width={vs(22)} />
+          </TouchableOpacity>
+        </View>
 
-              <TouchableOpacity 
-               activeOpacity={1}
-               onPress={() => setShowShare(false)}>
-                <Cross height={vs(24)} width={vs(24)} />
-              </TouchableOpacity>
-            </View>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{
+            paddingBottom: vs(10),
+          }}
+        >
 
+
+<View style={{ marginBottom: 20 }}>
+  <Text
+    style={{
+      fontSize: 14,
+      fontWeight: "600",
+      marginBottom: 12,
+      fontFamily: "PopinRegula",
+    }}
+  >
+    Share via
+  </Text>
+
+  <View
+    style={{
+      flexDirection: "row",
+      justifyContent: "space-between",
+    }}
+  >
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() =>
+        shareOnSocial("whatsapp")
+      }
+      style={{
+        alignItems: "center",
+        width: "20%",
+      }}
+    >
+      <View
+        style={{
+          width: 52,
+          height: 52,
+          borderRadius: 26,
+          backgroundColor: "#25D366",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <FontAwesome
+          name="whatsapp"
+          size={27}
+          color="#fff"
+        />
+      </View>
+
+      <Text
+        style={{
+          fontSize: 11,
+          marginTop: 6,
+          fontFamily: "PopinRegula",
+        }}
+      >
+        WhatsApp
+      </Text>
+    </TouchableOpacity>
+
+
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() =>
+        shareOnSocial("facebook")
+      }
+      style={{
+        alignItems: "center",
+        width: "20%",
+      }}
+    >
+      <View
+        style={{
+          width: 52,
+          height: 52,
+          borderRadius: 26,
+          backgroundColor: "#1877F2",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <FontAwesome
+          name="facebook"
+          size={26}
+          color="#fff"
+        />
+      </View>
+
+      <Text
+        style={{
+          fontSize: 11,
+          marginTop: 6,
+          fontFamily: "PopinRegula",
+        }}
+      >
+        Facebook
+      </Text>
+    </TouchableOpacity>
+
+
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() =>
+        shareOnSocial("twitter")
+      }
+      style={{
+        alignItems: "center",
+        width: "20%",
+      }}
+    >
+      <View
+        style={{
+          width: 52,
+          height: 52,
+          borderRadius: 26,
+          backgroundColor: "#000",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Text
+          style={{
+            color: "#fff",
+            fontSize: 22,
+            fontWeight: "700",
+          }}
+        >
+          X
+        </Text>
+      </View>
+
+      <Text
+        style={{
+          fontSize: 11,
+          marginTop: 6,
+          fontFamily: "PopinRegula",
+        }}
+      >
+        X
+      </Text>
+    </TouchableOpacity>
+
+
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() =>
+        shareOnSocial("linkedin")
+      }
+      style={{
+        alignItems: "center",
+        width: "20%",
+      }}
+    >
+      <View
+        style={{
+          width: 52,
+          height: 52,
+          borderRadius: 26,
+          backgroundColor: "#0A66C2",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <FontAwesome
+          name="linkedin"
+          size={25}
+          color="#fff"
+        />
+      </View>
+
+      <Text
+        style={{
+          fontSize: 11,
+          marginTop: 6,
+          fontFamily: "PopinRegula",
+        }}
+      >
+        LinkedIn
+      </Text>
+    </TouchableOpacity>
+    {/* More */}
+<TouchableOpacity
+  activeOpacity={0.8}
+  onPress={() =>
+    shareOnSocial("more")
+  }
+  style={{
+    alignItems: "center",
+    width: "20%",
+  }}
+>
+  <View
+    style={{
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      backgroundColor: "#E5E7EB",
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: "#D1D5DB",
+    }}
+  >
+    <Ionicons
+      name="ellipsis-horizontal"
+      size={26}
+      color="#374151"
+    />
+  </View>
+
+  <Text
+    style={{
+      fontSize: 11,
+      marginTop: 6,
+      fontFamily: "PopinRegula",
+    }}
+  >
+    More
+  </Text>
+</TouchableOpacity>
+  </View>
+
+  <View
+    style={{
+      height: 1,
+      backgroundColor: "#e5e7eb",
+      marginTop: 20,
+      marginBottom: 5,
+    }}
+  />
+</View>
             <Formik
               initialValues={{
                 recepient_email: "",
                 message: "",
-                link: `https://homeilove.co.uk/postRedirect?post_id=${id}&&type=${"profile"}&&profile_type=${type}`,
+                link: `https://sweetghar.com/postRedirect?post_id=${id}&&type=${"profile"}&&profile_type=${type}`,
                 post_id: id,
                 type: type.toLocaleLowerCase(),
               }}
@@ -1328,10 +1866,11 @@ const insets = useSafeAreaInsets();
 
               )}
             </Formik>
-
+  </ScrollView>
           </View>
         </View>
         </SafeAreaView>
+      
         <Loading isLoading={sharing} text="Sharing..." />
       </Modal>
                  <Modal visible={showSaved} onRequestClose={() => setShowSaved(false)} animationType="slide"  statusBarTranslucent>
@@ -1409,6 +1948,189 @@ const insets = useSafeAreaInsets();
                     </TouchableOpacity>
                     </SafeAreaView>
                   </Modal>
+                  <Modal
+  visible={showReviewsModal}
+  transparent
+  animationType="slide"
+  onRequestClose={() => setShowReviewsModal(false)}
+>
+  <SafeAreaView style={{ flex: 1 }}>
+    <View style={styles.reviewsOverlay}>
+
+      <View style={styles.reviewsModalContainer}>
+
+        {/* Header */}
+        <View style={styles.reviewsHeader}>
+
+          <View>
+            <Text style={styles.reviewsTitle}>
+              Ratings & Reviews
+            </Text>
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginTop: 4,
+              }}
+            >
+              <StarRating rating={rating} size={18} />
+
+              <Text
+                style={{
+                  marginLeft: 8,
+                  fontFamily: "PopinRegula",
+                  fontWeight: "600",
+                }}
+              >
+                {rating.toFixed(1)} ({totalReviews} Reviews)
+              </Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => setShowReviewsModal(false)}
+          >
+            <Ionicons
+              name="close"
+              size={28}
+              color={Colors.light.textGray}
+            />
+          </TouchableOpacity>
+
+        </View>
+
+        <View style={styles.divider} />
+
+        {/* Reviews */}
+        {reviewsLoading ? (
+
+          <Loading
+            isLoading={true}
+            text="Loading reviews..."
+          />
+
+        ) : allReviews.length === 0 ? (
+
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "PopinRegula",
+                color: Colors.light.textGray,
+              }}
+            >
+              No reviews yet
+            </Text>
+          </View>
+
+        ) : (
+
+          <FlatList
+            data={allReviews}
+            keyExtractor={(item: any, index) =>
+              item.id?.toString() || index.toString()
+            }
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingBottom: vs(30),
+            }}
+            renderItem={({ item }: any) => (
+
+              <View style={styles.singleReviewCard}>
+
+                {/* Reviewer */}
+                <View style={styles.reviewUserRow}>
+
+                  <CircleImage
+                    Size={45}
+                    source={{
+                      uri: ImageFormater(item?.reviewer_logo),
+                    }}
+                  />
+
+                  <View
+                    style={{
+                      flex: 1,
+                      marginLeft: hs(10),
+                    }}
+                  >
+                    <Text style={styles.reviewerName}>
+                      {item?.reviewer_name || "User"}
+                    </Text>
+
+                    <Text style={styles.reviewerType}>
+                      {item?.sender_profile_type}
+                    </Text>
+                  </View>
+
+                  <View
+                    style={{
+                      alignItems: "flex-end",
+                    }}
+                  >
+                    <StarRating
+                      rating={Number(item?.rating || 0)}
+                      size={16}
+                    />
+
+                    <Text style={styles.singleRating}>
+                      {Number(item?.rating || 0).toFixed(1)}
+                    </Text>
+                  </View>
+
+                </View>
+
+                {/* Comment */}
+                {item?.review ? (
+                  <View style={{ marginTop: vs(12) }}>
+
+                    <Text style={styles.reviewLabel}>
+                      Review
+                    </Text>
+
+                    <Text style={styles.reviewText}>
+                      {item.review}
+                    </Text>
+
+                  </View>
+                ) : null}
+
+                {/* Important facts */}
+                {item?.imp_facts ? (
+                  <View
+                    style={{
+                      marginTop: vs(10),
+                    }}
+                  >
+                    <Text style={styles.reviewLabel}>
+                      Experience
+                    </Text>
+
+                    <Text style={styles.reviewText}>
+                      {item.imp_facts}
+                    </Text>
+                  </View>
+                ) : null}
+
+              </View>
+
+            )}
+          />
+
+        )}
+
+      </View>
+
+    </View>
+  </SafeAreaView>
+</Modal>
                   <Loading isLoading={askEvaluationLoading} text='Loading..'/>
                 
     </>
@@ -1423,6 +2145,83 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  reviewsOverlay: {
+  flex: 1,
+  backgroundColor: "rgba(0,0,0,0.45)",
+  justifyContent: "flex-end",
+},
+
+reviewsModalContainer: {
+  backgroundColor: "#fff",
+  borderTopLeftRadius: hs(20),
+  borderTopRightRadius: hs(20),
+  paddingHorizontal: hs(20),
+  paddingTop: vs(20),
+  height: "80%",
+},
+
+reviewsHeader: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+},
+
+reviewsTitle: {
+  fontSize: ms(20),
+  fontWeight: "700",
+  fontFamily: "PopinRegula",
+  color: Colors.light.textGray,
+},
+
+singleReviewCard: {
+  backgroundColor: "#fff",
+  borderRadius: hs(12),
+  padding: hs(15),
+  marginVertical: vs(8),
+  borderWidth: 1,
+  borderColor: "#E5E5E5",
+},
+
+reviewUserRow: {
+  flexDirection: "row",
+  alignItems: "center",
+},
+
+reviewerName: {
+  fontSize: ms(15),
+  fontWeight: "700",
+  fontFamily: "PopinRegula",
+  color: Colors.light.textGray,
+},
+
+reviewerType: {
+  fontSize: ms(12),
+  fontFamily: "PopinRegula",
+  color: "#777",
+  marginTop: 2,
+},
+
+singleRating: {
+  fontSize: ms(12),
+  fontWeight: "600",
+  fontFamily: "PopinRegula",
+  marginTop: 3,
+},
+
+reviewLabel: {
+  fontSize: ms(13),
+  fontWeight: "700",
+  fontFamily: "PopinRegula",
+  color: Colors.light.DarkGreen,
+},
+
+reviewText: {
+  fontSize: ms(13),
+  fontFamily: "PopinRegula",
+  color: Colors.light.textGray,
+  marginTop: vs(4),
+  lineHeight: ms(20),
+},
   adCard: {
     width: "100%",
     height: vs(100),
@@ -1557,6 +2356,7 @@ const styles = StyleSheet.create({
   description: {
     marginVertical: 10,
     fontFamily: "PopinRegula",
+    fontSize:ms(15),
   },
 
   moreText: {

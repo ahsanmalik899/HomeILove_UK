@@ -1,50 +1,59 @@
-import * as Burnt from 'burnt';
-import { Platform, ToastAndroid } from 'react-native';
-import ToastNew from 'react-native-toast-message';
+import * as Burnt from "burnt";
+import { Platform, ToastAndroid } from "react-native";
+
 export const renderToastSuccess = (title: string) => {
-  if (Platform.OS === 'android') {
+  if (Platform.OS === "android") {
     ToastAndroid.show(title, ToastAndroid.SHORT);
     return;
   }
 
-  ToastNew.show({
-    type: 'success',
-    position: 'bottom',
-    swipeable: true,
-    visibilityTime: 4000,
-    text1: title,
+  Burnt.toast({
+    title,
+    preset: "done",
+    haptic: "success",
+    duration: 2,
+    from: "bottom",
+    shouldDismissByDrag: true,
   });
 };
 
 export const renderToastError = (title: string) => {
-    if (Platform.OS === 'android') {
-    ToastAndroid.show(  String(title || "Something went wrong"), ToastAndroid.SHORT);
+  if (Platform.OS === "android") {
+    ToastAndroid.show(title, ToastAndroid.SHORT);
     return;
   }
-  return ToastNew.show({
-    type: 'error',
-    position: 'bottom',
-    swipeable: true,
-    visibilityTime: 4000,
-    text1: title,
+
+  Burnt.toast({
+    title,
+    preset: "error",
+    haptic: "error",
+    duration: 2,
+    from: "bottom",
+    shouldDismissByDrag: true,
   });
 };
 
-export const renderAlertSuccess = (title: string, message?: string) => {
+export const renderAlertSuccess = (
+  title: string,
+  message?: string
+) => {
   return Burnt.alert({
     title,
     message,
-    preset: 'done',
+    preset: "done",
     duration: 2,
     shouldDismissByTap: true,
   });
 };
 
-export const renderAlertError = (title: string, message?: string) => {
+export const renderAlertError = (
+  title: string,
+  message?: string
+) => {
   return Burnt.alert({
     title,
     message,
-    preset: 'error',
+    preset: "error",
     duration: 2,
     shouldDismissByTap: true,
   });

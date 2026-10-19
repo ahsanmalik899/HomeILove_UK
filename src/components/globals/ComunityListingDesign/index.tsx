@@ -605,6 +605,7 @@ const styles = StyleSheet.create({
     marginVertical: vs(10),
     fontWeight: 500,
     color:Colors.light.textGray,
+    fontSize:ms(15),
     fontFamily: '',
   },
   moreText: {

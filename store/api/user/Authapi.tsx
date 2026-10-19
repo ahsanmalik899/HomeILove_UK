@@ -1,15 +1,15 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import {
-  changepassword,
-  resetpass,
-  siginpost,
-  SignInResponse,
-  verifyuser
+    changepassword,
+    resetpass,
+    siginpost,
+    SignInResponse,
+    verifyuser
 } from '@store/type/user/index';
 
 export const Authapi = createApi({
   reducerPath: 'Authapi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://homeilove.co.uk/api/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://www.homeilove.co.uk/api/' }),
   endpoints: builder => ({
     Signup: builder.mutation<unknown, FormData>({
       query: formData => ({

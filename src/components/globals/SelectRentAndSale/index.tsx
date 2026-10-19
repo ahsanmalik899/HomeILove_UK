@@ -10,7 +10,7 @@ const index = ({ onPress, value,errorText,edit=false }: RentAndSaleProps) => {
   return (
     <>
     <View className="flex-row justify-between">
-      {(edit&&value==="sale")&&(
+      {(!edit || value === "sale")&&(
       <TouchableOpacity
        activeOpacity={1} className="items-center"
         style={[value === "sale" ? styles.activeButton : styles.Button]}
@@ -19,7 +19,7 @@ const index = ({ onPress, value,errorText,edit=false }: RentAndSaleProps) => {
         {value === "sale" ? <ActiveSale /> : <SaleIcon />}
         <Text style={[value === "sale" ? styles.TextActive : styles.Text]}>For Sale</Text>
       </TouchableOpacity>)}
-{(edit&&value==="rent")&&(
+{(!edit || value === "rent")&&(
       <TouchableOpacity
        activeOpacity={1}
       className="items-center"

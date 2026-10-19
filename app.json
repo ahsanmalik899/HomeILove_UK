@@ -3,7 +3,7 @@
     "scheme": "homeiloveuk",
     "name": "Homeilove.co.uk",
     "slug": "homeilove-uk",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icons/app-icon 1024x1024.png",
     "newArchEnabled": true,
@@ -35,14 +35,14 @@
     "android": {
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "pan",
-      "versionCode": 2,
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icons/app-icon 1024x1024.png",
         "backgroundColor": "#ffffff"
       },
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyBaSaRVNgsBZTflG9WrJ7AwVm2cdJ5NerE"
+          "apiKey": "AIzaSyD6UCo-hqB47QTXzS0S0UV8WqwM5x6mECY"
         }
       },
       "intentFilters": [
@@ -133,13 +133,39 @@
       "expo-font",
       "expo-asset",
       "expo-web-browser",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "react-native-share",
+        {
+          "ios": [
+            "whatsapp",
+            "fb",
+            "twitter",
+            "linkedin"
+          ],
+          "android": [
+            "com.whatsapp",
+            "com.facebook.katana",
+            "com.linkedin.android",
+            "com.twitter.android"
+          ]
+        }
+      ],
+  [
+  "expo-build-properties",
+  {
+    "android": {
+      "enableMinifyInReleaseBuilds": true,
+      "enableShrinkResourcesInReleaseBuilds": true
+    }
+  }
+]
     ],
     "extra": {
       "router": {
         "origin": false
       },
-      "GOOGLE_MAPS_API_KEY": "AIzaSyBaSaRVNgsBZTflG9WrJ7AwVm2cdJ5NerE",
+      "GOOGLE_MAPS_API_KEY": "AIzaSyD6UCo-hqB47QTXzS0S0UV8WqwM5x6mECY",
       "eas": {
         "projectId": "8b39deda-2558-4bba-ae5c-3b6bea278cea"
       }
