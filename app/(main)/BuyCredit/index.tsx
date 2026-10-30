@@ -1,4 +1,4 @@
-import { useGetUserWalletQuery } from "@/store/api/user/MainApi";
+import { useGetBundlesPriceQuery, useGetUserWalletQuery } from "@/store/api/user/MainApi";
 import { userdata } from "@/store/slices/selector/user";
 import Paypal from "@assets/SideBar/paypal-icon.svg";
 import PowerdByPayPal from "@assets/SideBar/Powered by PayPal.svg";
@@ -23,18 +23,19 @@ import {
 
 const index = () => {
   const user = useAppSelector(userdata);
-  const bundlesData = [
-    { id: "1", type: "Basic", price: "200", amount: "650" },
-    { id: "2", type: "Medium", price: "400", amount: "1300" },
-    { id: "3", type: "Bulk", price: "700", amount: "2200" },
-    { id: "4", type: "High Volume", price: "700", amount: "2200" },
-  ];
+const {
+  data: bundlesResponse,
+  isLoading: bundlesLoading,
+  isFetching: bundlesFetching,
+  refetch: refetchBundles,
+} = useGetBundlesPriceQuery(undefined);
   const [adType, setAdtype] = useState("");
   const [selectedAmount, setSelectedAmount] = useState("");
   const [upgradeAmount, setUpgradeAmout] = useState("");
   const { data, isLoading, isFetching } = useGetUserWalletQuery({
     id: user.id,
   });
+    const bundlesData = bundlesResponse?.data ?? [];
   return (
     <View className="flex-1 bg-white">
       <ScrollView>
@@ -96,9 +97,9 @@ const index = () => {
                 flex:1,
               }}
             >
-             <FlashList
+<FlashList
   data={bundlesData}
-  keyExtractor={(item) => item.id}
+  keyExtractor={(item) => item.bundles_price_id.toString()}
   ListHeaderComponent={
     <View
       className="flex-row justify-between items-center"
@@ -111,61 +112,164 @@ const index = () => {
         paddingVertical: vs(10),
       }}
     >
-      <Text style={{ fontFamily: "PopinRegula" }}>Bundles</Text>
+      <Text
+        style={{
+          fontFamily: "PopinRegula",
+          flex: 1.2,
+        }}
+      >
+        Bundles
+      </Text>
 
-      <Text style={{ fontFamily: "PopinRegula" }}>
+      <Text
+        style={{
+          fontFamily: "PopinRegula",
+          flex: 1,
+          textAlign: "center",
+        }}
+      >
         Bundle price
       </Text>
 
-      <Text style={{ fontFamily: "PopinRegula" }}>
+      <Text
+        style={{
+          fontFamily: "PopinRegula",
+          flex: 1,
+          textAlign: "right",
+        }}
+      >
         Amount you get
       </Text>
     </View>
+  }
+  ListEmptyComponent={
+    bundlesLoading || bundlesFetching ? (
+      <View
+        style={{
+          paddingVertical: vs(30),
+          alignItems: "center",
+        }}
+      >
+        <ActivityIndicator
+          size="small"
+          color={Colors.light.DarkGreen}
+        />
+
+        <Text
+          style={{
+            marginTop: vs(8),
+            fontFamily: "PopinRegula",
+          }}
+        >
+          Loading bundles...
+        </Text>
+      </View>
+    ) : (
+      <View
+        style={{
+          paddingVertical: vs(30),
+          alignItems: "center",
+        }}
+      >
+        <Text style={{ fontFamily: "PopinRegula" }}>
+          No bundles available
+        </Text>
+      </View>
+    )
   }
   renderItem={({ item }) => (
     <View
       className="flex-row justify-between items-center"
       style={{
         paddingHorizontal: hs(10),
-        paddingVertical: vs(10),
+        paddingVertical: vs(12),
       }}
     >
-      <View className="flex-row items-center">
+      {/* Bundle type */}
+      <View
+        className="flex-row items-center"
+        style={{ flex: 1.2 }}
+      >
         <TouchableOpacity
-         activeOpacity={1}
+          activeOpacity={1}
           onPress={() => {
-            setAdtype(adType === item.type ? "" : item.type);
-            setSelectedAmount(item.price);
-            setUpgradeAmout(item.amount);
+            if (adType === item.bundle_type) {
+              setAdtype("");
+              setSelectedAmount("");
+              setUpgradeAmout("");
+            } else {
+              setAdtype(item.bundle_type);
+
+              // Actual payment amount
+              setSelectedAmount(
+                item.bundle_price.toString()
+              );
+
+              // Credits user will receive
+              setUpgradeAmout(
+                item.amount_credit.toString()
+              );
+            }
           }}
         >
           <MaterialIcons
             size={18}
             color={Colors.light.DarkGreen}
             name={
-              adType === item.type
+              adType === item.bundle_type
                 ? "check-box"
                 : "check-box-outline-blank"
             }
           />
         </TouchableOpacity>
 
-        <Text
+        <View
           style={{
             marginLeft: hs(10),
-            fontFamily: "PopinRegula",
           }}
         >
-          {item.type}
-        </Text>
+          <Text
+            style={{
+              fontFamily: "PopinRegula",
+            }}
+          >
+            {item.bundle_type}
+          </Text>
+
+          {item.saving_percentage > 0 && (
+            <Text
+              style={{
+                fontFamily: "PopinRegula",
+                fontSize: ms(10),
+                color: Colors.light.DarkGreen,
+              }}
+            >
+              Save {item.saving_percentage}%
+            </Text>
+          )}
+        </View>
       </View>
 
-      <Text style={{ fontFamily: "PopinRegula" }}>
-        {formatPrice(item.price)}
+      {/* Bundle price */}
+      <Text
+        style={{
+          fontFamily: "PopinRegula",
+          flex: 1,
+          textAlign: "center",
+        }}
+      >
+        {formatPrice(item.bundle_price)}
       </Text>
 
-      <Text style={{ fontFamily: "PopinRegula" }}>
-        {item.amount}
+      {/* Credits */}
+      <Text
+        style={{
+          fontFamily: "PopinRegula",
+          flex: 1,
+          textAlign: "right",
+        }}
+      >
+        {item.amount_credit}
       </Text>
     </View>
   )}

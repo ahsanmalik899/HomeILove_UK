@@ -93,7 +93,7 @@ const index = () => {
 const getShareUrl = () => {
   const postId = getSharePostId();
 
-  return `https://homeilove.co.uk/postRedirect?post_id=${postId}&&type=${
+  return `https://www.homeilove.co.uk/postRedirect?post_id=${postId}&&type=${
     type === "community" ? "community" : "property"
   }`;
 };
@@ -1801,7 +1801,7 @@ const shareOnSocial = async (
         initialValues={{
           recepient_email: "",
           message: "",
-          link:`https://homeilove.co.uk/postRedirect?post_id=${type==="community"?data?.post?.post_community_id:data?.post?.post_property_id}&&type=${type==="community"?"community":"property"}`,
+          link:`https://www.homeilove.co.uk/postRedirect?post_id=${type==="community"?data?.post?.post_community_id:data?.post?.post_property_id}&&type=${type==="community"?"community":"property"}`,
           post_id:type==="community"?data?.post?.post_community_id:data?.post?.post_property_id,
           type:type,
         }}

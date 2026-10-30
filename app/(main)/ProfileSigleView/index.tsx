@@ -879,7 +879,7 @@ const { data, isLoading } = useGetSingleProfileQuery(
               initialValues={{
                 recepient_email: "",
                 message: "",
-                link: `https://homeilove.co.uk/postRedirect?post_id=${id}&&type=${"profile"}&&profile_type=${type}`,
+                link: `https://www.homeilove.co.uk/postRedirect?post_id=${id}&&type=${"profile"}&&profile_type=${type}`,
                 post_id: id.toString(),
                 type: type,
               }}

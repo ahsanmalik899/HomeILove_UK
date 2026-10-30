@@ -438,7 +438,7 @@ const [menuPost, setMenuPost] = useState<number | null>(null);
   });
   const buildPostShareContent = () => {
   const postUrl =
-    `https://homeilove.co.uk/NewsFeedSingelView?post_id=${shareData?.id}`;
+    `https://www.homeilove.co.uk/NewsFeedSingelView?post_id=${shareData?.id}`;
 
   const description =
     shareData?.description?.trim() ||
@@ -1114,7 +1114,7 @@ const downloadShareImage = async (
         initialValues={{
           recepient_email: "",
           message: "",
-          link:`https://homeilove.co.uk/NewsFeedSingelView?post_id=${shareData?.id}`,
+          link:`https://www.homeilove.co.uk/NewsFeedSingelView?post_id=${shareData?.id}`,
           post_id:shareData?.id,
           post_type:shareData?.type,
           post_image: getPostImage(shareData) ?? "",

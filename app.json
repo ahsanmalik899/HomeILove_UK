@@ -3,7 +3,7 @@
     "scheme": "homeiloveuk",
     "name": "Homeilove.co.uk",
     "slug": "homeilove-uk",
-    "version": "1.0.3",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/icons/app-icon 1024x1024.png",
     "newArchEnabled": true,
@@ -35,7 +35,7 @@
     "android": {
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "pan",
-      "versionCode": 4,
+      "versionCode": 7,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icons/app-icon 1024x1024.png",
         "backgroundColor": "#ffffff"
@@ -52,7 +52,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "homeilove.co.uk",
+              "host": "www.homeilove.co.uk",
               "pathPrefix": "/CreateNewpass"
             }
           ],
@@ -67,7 +67,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "homeilove.co.uk",
+              "host": "www.homeilove.co.uk",
               "pathPrefix": "/Account"
             }
           ],
@@ -82,7 +82,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "homeilove.co.uk",
+              "host": "www.homeilove.co.uk",
               "pathPrefix": "/NewsFeedSingelView"
             }
           ],
@@ -97,7 +97,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "homeilove.co.uk",
+              "host": "www.homeilove.co.uk",
               "pathPrefix": "/AddSingleView"
             }
           ],
@@ -112,7 +112,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "homeilove.co.uk",
+              "host": "www.homeilove.co.uk",
               "pathPrefix": "/postRedirect"
             }
           ],

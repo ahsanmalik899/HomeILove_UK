@@ -150,37 +150,44 @@ const downloadShareImage = async (
   }
 };
 
-
 const shareOnSocial = async (
-  platform: "whatsapp" | "facebook" | "twitter" | "linkedin"    | "more"
+  platform: "whatsapp" | "facebook" | "twitter" | "linkedin" | "more"
 ) => {
   try {
-    if (!post_id) {
+    const selectedPost: any = shareData;
+
+    if (!selectedPost?.post_id) {
       renderToastError("Post not found");
       return;
     }
 
+    const selectedPostId = selectedPost.post_id;
+
     const postUrl =
-      `https://homeilove.co.uk/postRedirect?post_id=${post_id}&&type=post`;
+      `https://www.homeilove.co.uk/postRedirect?post_id=${selectedPostId}&&type=post`;
 
     let shareText = "";
 
     // COMMUNITY
-    if (data?.type === "community") {
+    if (
+      selectedPost?.type === "Shared Community" ||
+      selectedPost?.type === "community"
+    ) {
       const communityTitle =
-        data?.post?.community_title || "Community";
+        selectedPost?.title ||
+        selectedPost?.community_title ||
+        "Community";
 
       const location = [
-        data?.post?.city,
-        data?.post?.state,
+        selectedPost?.city,
+        selectedPost?.state,
       ]
         .filter(Boolean)
         .join(", ");
 
       const startingPrice =
-        data?.post?.community_price?.length > 0
-          ? data.post.community_price[0]
-          : null;
+        selectedPost?.price ||
+        selectedPost?.community_price?.[0];
 
       shareText =
         `${communityTitle}` +
@@ -193,9 +200,11 @@ const shareOnSocial = async (
     }
 
     // GENERAL POST
-    else if (data?.type === "general") {
-      const description =
-        data?.post?.description || "";
+    else if (
+      selectedPost?.type === "General Post" ||
+      selectedPost?.type === "general"
+    ) {
+      const description = selectedPost?.description || "";
 
       shareText =
         description.length > 150
@@ -205,8 +214,7 @@ const shareOnSocial = async (
 
     // PROPERTY
     else {
-      const bedroomCount =
-        Number(data?.post?.bedrooms ?? 0);
+      const bedroomCount = Number(selectedPost?.bedrooms ?? 0);
 
       const bedroomLabel =
         bedroomCount > 0
@@ -214,26 +222,27 @@ const shareOnSocial = async (
           : "";
 
       const propertyType =
-        data?.post?.property_sub_type || "Property";
+        selectedPost?.property_sub_type || "Property";
 
       const propertyFor =
-        data?.post?.property_for?.toLowerCase() === "rent"
+        selectedPost?.property_for?.toLowerCase() === "rent"
           ? "Rent"
           : "Sale";
 
       const location = [
-        data?.post?.city,
-        data?.post?.state,
+        selectedPost?.city,
+        selectedPost?.state,
       ]
         .filter(Boolean)
         .join(", ");
 
       const price =
-        data?.post?.asking_price;
+        selectedPost?.asking_price ||
+        selectedPost?.price;
 
       const rentType =
-        propertyFor === "Rent" && data?.post?.rent_type
-          ? `/${data.post.rent_type}`
+        propertyFor === "Rent" && selectedPost?.rent_type
+          ? `/${selectedPost.rent_type}`
           : "";
 
       shareText =
@@ -249,17 +258,20 @@ const shareOnSocial = async (
 
     const message = `${shareText}\n${postUrl}`;
 
-    const remoteImage =
-      data?.post_images?.length > 0
-        ? ImageFormater(data.post_images[0])
-        : null;
+    const image =
+      selectedPost?.images?.[0] ||
+      selectedPost?.post_images?.[0];
+
+    const remoteImage = image
+      ? ImageFormater(image)
+      : null;
 
     let localImage: string | null = null;
 
     if (remoteImage) {
       localImage = await downloadShareImage(
         remoteImage,
-        post_id
+        selectedPostId
       );
     }
 
@@ -303,7 +315,6 @@ const shareOnSocial = async (
       } else {
         await RNShare.open(shareOptions);
       }
-
       return;
     }
 
@@ -316,17 +327,15 @@ const shareOnSocial = async (
       } else {
         await RNShare.open(shareOptions);
       }
-
       return;
     }
-if (platform === "more") {
-  await RNShare.open({
-    ...shareOptions,
-    failOnCancel: false,
-  });
 
-  return;
-}
+    if (platform === "more") {
+      await RNShare.open({
+        ...shareOptions,
+        failOnCancel: false,
+      });
+    }
   } catch (error: any) {
     console.log("Social share error:", error);
 
@@ -2100,7 +2109,7 @@ onEndReached={() => {
               initialValues={{
                 recepient_email: "",
                 message: "",
-                link: `https://homeilove.co.uk/postRedirect?post_id=${shareData?.post_id || shareData?.post_id}&&type=post`,
+                link: `https://www.homeilove.co.uk/postRedirect?post_id=${shareData?.post_id || shareData?.post_id}&&type=post`,
                 post_id: shareData?.post_id,
                 post_type: shareData?.type,
                 post_image: shareData?.images?.[0] ?? "",

@@ -585,7 +585,7 @@ const index = () => {
         initialValues={{
           recepient_email: "",
           message: "",
-          link:`https://homeilove.co.uk/postRedirect?post_id=${post_id}`,
+          link:`https://www.homeilove.co.uk/postRedirect?post_id=${post_id}`,
           post_id:post_id,
           post_type:data?.type,
           post_image:data?.post_images?.[0]?? "",
